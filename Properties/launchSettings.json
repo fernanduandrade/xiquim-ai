@@ -7,7 +7,9 @@
       "launchBrowser": false,
       "applicationUrl": "http://0.0.0.0:5097",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "OLLAMA_HOST": "http://localhost:11434/",
+        "OLLAMA_MODEL": "tinyllama"
       }
     },
     "https": {
@@ -16,7 +18,9 @@
       "launchBrowser": false,
       "applicationUrl": "https://localhost:7198;http://localhost:5097",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "OLLAMA_HOST": "http://localhost:11434/",
+        "OLLAMA_MODEL": "tinyllama"
       }
     }
   }

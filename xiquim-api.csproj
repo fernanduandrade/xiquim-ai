@@ -4,7 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>pdf_transpiler</RootNamespace>
+    <RootNamespace>xiquim-api</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

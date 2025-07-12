@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pdf-transpiler", "pdf-transpiler.csproj", "{889837E5-69C9-55A9-10A1-724CE5731B5C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xiquim-api", "xiquim-api.csproj", "{889837E5-69C9-55A9-10A1-724CE5731B5C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
