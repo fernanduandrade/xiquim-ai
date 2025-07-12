@@ -1,0 +1,6 @@
+@pdf_transpiler_HostAddress = http://localhost:5097
+
+GET {{pdf_transpiler_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
