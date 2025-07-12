@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>XiquimAI 🤠</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+    <div class="app">
+        <div class="header">
+            <div class="header-content">
+                <div class="logo">XiquimAI 🤠</div>
+            </div>
+            <button class="theme-toggle" id="themeToggle" title="Alternar tema">
+                <span id="themeIcon">🌙</span>
+            </button>
+        </div>
+
+        <div class="chat-area">
+            <div class="messages" id="messages">
+                <div class="welcome" id="welcome">
+                    <div class="welcome-icon">🚀</div>
+                    <div style="font-weight: 600; color: #fff;">Como posso ajudá-lo hoje?</div>
+                </div>
+
+                <div class="typing" id="typing">
+                    <span>Pensando</span>
+                    <div class="dots">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <form id="form">
+                    <div class="input-container">
+                        <textarea id="input" class="input" placeholder="Digite sua pergunta..." rows="1"
+                            required></textarea>
+                        <button type="submit" class="send-btn" id="sendBtn">
+                            <span id="sendIcon">↗</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('form');
+        const input = document.getElementById('input');
+        const messages = document.getElementById('messages');
+        const welcome = document.getElementById('welcome');
+        const typing = document.getElementById('typing');
+        const sendBtn = document.getElementById('sendBtn');
+        const sendIcon = document.getElementById('sendIcon');
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+
+        let isProcessing = false;
+        let isDarkMode = false;
+
+        const chatHistory = []; // Store chat history
+        // Initialize theme
+        function initializeTheme() {
+            // Check for saved theme preference or default to system preference
+            const savedTheme = localStorage.getItem('theme');
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            if (savedTheme) {
+                isDarkMode = savedTheme === 'dark';
+            } else {
+                isDarkMode = systemPrefersDark;
+            }
+
+            updateTheme();
+        }
+
+        // Update theme
+        function updateTheme() {
+            if (isDarkMode) {
+                document.body.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+                themeToggle.title = 'Modo claro';
+            } else {
+                document.body.removeAttribute('data-theme');
+                themeIcon.textContent = '🌙';
+                themeToggle.title = 'Modo escuro';
+            }
+
+            // Save theme preference
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+        }
+
+        // Toggle theme
+        themeToggle.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            updateTheme();
+        });
+
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (!localStorage.getItem('theme')) {
+                isDarkMode = e.matches;
+                updateTheme();
+            }
+        });
+
+        // Auto-resize textarea
+        input.addEventListener('input', function () {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // Handle Enter key
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (!isProcessing && this.value.trim()) {
+                    form.dispatchEvent(new Event('submit'));
+                }
+            }
+        });
+
+        function addMessage(content, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'content';
+            contentDiv.textContent = content;
+
+            messageDiv.appendChild(contentDiv);
+
+            if (welcome.style.display !== 'none') {
+                welcome.style.display = 'none';
+            }
+
+            messages.appendChild(messageDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function showTyping() {
+            typing.classList.add('show');
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function hideTyping() {
+            typing.classList.remove('show');
+        }
+
+        function setButtonState(loading) {
+            isProcessing = loading;
+            sendBtn.disabled = loading;
+            sendIcon.textContent = loading ? '⏳' : '↗';
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const message = input.value.trim();
+            if (!message || isProcessing) return;
+
+            // Add user message
+            addMessage(message, true);
+            // Clear input
+            input.value = '';
+            input.style.height = 'auto';
+
+            // Show processing state
+            setButtonState(true);
+            showTyping();
+
+            try {
+                const response = await fetch('http://{ip_address}:{port}/xiquim/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ history: chatHistory, question: message }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro na resposta do servidor');
+                }
+
+                hideTyping();
+
+                // Create assistant message
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message assistant';
+
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'content';
+                contentDiv.textContent = '';
+
+                messageDiv.appendChild(contentDiv);
+                messages.appendChild(messageDiv);
+
+                // Stream response
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder('utf-8');
+
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value, { stream: true });
+                    const events = chunk.split('\n\n');
+
+                    for (const event of events) {
+                        if (!event.startsWith('data: ')) continue;
+
+                        const content = event.replace('data: ', '');
+                        contentDiv.textContent += content;
+                        messages.scrollTop = messages.scrollHeight;
+                    }
+                }
+                chatHistory.push({role: 'user', message})
+
+            } catch (error) {
+                console.error('Erro:', error);
+                hideTyping();
+                addMessage('Desculpe, ocorreu um erro. Tente novamente.', false);
+            } finally {
+                chatHistory.push({role: 'assistant', message: contentDiv.textContent});
+                setButtonState(false);
+            }
+        });
+
+        // Initialize everything
+        window.addEventListener('load', () => {
+            initializeTheme();
+            input.focus();
+        });
+    </script>
+</body>
+
+</html>
